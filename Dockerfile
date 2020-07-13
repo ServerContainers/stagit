@@ -6,6 +6,8 @@ RUN apk add --no-cache libgit2 \
  && cd stagit \
  && make \
  && make install \
+ \
+ && echo "cleanups..." \
  && cd / \
  && rm -rf stagit \
  && apk del --no-cache libc-dev libgit2-dev make gcc git
