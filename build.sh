@@ -23,7 +23,7 @@ echo
 echo
 
 # stagit-index
-for folder in $(find ../repositories/ -name "*.git" -exec sh -c 'echo {} | sed "s,.*repositories/,,g" | sed "s,[^/]*\.git$,,g"' \; | sort | uniq) ; do
+for folder in $(find ../repositories/ -name "*.git" -exec sh -c 'echo {} | sed "s,.*repositories/,,g" | grep -v '/.git' | sed "s,[^/]*\.git$,,g"' \; | sort | uniq) ; do
   echo -n "building index for $folder ... "
   cd "$folder"
   $STAGIT_INDEX "$NORMAL_PWD""$folder"*.git > index.html
