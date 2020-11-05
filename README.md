@@ -3,6 +3,13 @@ Stagit recursive Git-Site Generator
 
 Dockerized Version of `stagit` (https://git.codemadness.org/stagit/) - with script to recursively generate an overview over several git projects.
 
+
+## Changelogs
+
+* 2020-11-05
+    * multiarch build
+
+
 ## Usage
 
 ```
