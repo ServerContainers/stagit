@@ -25,6 +25,8 @@ for folder in $(find ../repositories/ -name "*.git" -exec sh -c 'echo {} | sed "
 
   if [ ! -f "$CHECK_FILE" ] || [ $GIT_DATE_SECONDS -gt $LOG_DATE_SECONDS ]; then
     $STAGIT "$NORMAL_PWD""/""$folder"".git"
+  else
+    echo "  skipped stagit (git: $GIT_DATE_ISO, last generation: $LOG_DATE_ISO)"
   fi
   
   cd - >/dev/null
