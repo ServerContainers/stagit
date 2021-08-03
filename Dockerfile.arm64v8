@@ -19,7 +19,7 @@ RUN apk add --no-cache libgit2 \
  && echo "cleanups..." \
  && cd / \
  && rm -rf stagit \
- && apk del --no-cache libc-dev libgit2-dev make gcc git
+ && apk del --no-cache libc-dev libgit2-dev make gcc
 
 COPY . /container/
 

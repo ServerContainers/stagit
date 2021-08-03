@@ -8,6 +8,7 @@ Dockerized Version of `stagit` (https://git.codemadness.org/stagit/) - with scri
 
 * 2021-08-03
     * improved performance - only run stagit, if latest change in git is newer than latest generated html
+    * serveral bug fixes
 * 2020-11-05
     * multiarch build
 
