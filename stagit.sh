@@ -14,7 +14,19 @@ for folder in $(find ../repositories/ -name "*.git" -exec sh -c 'echo {} | sed "
   echo -n "building $folder ... "
   mkdir -p "$folder"
   cd "$folder"
-  $STAGIT "$NORMAL_PWD""/""$folder"".git"
+
+  CHECK_FILE="log.html"
+
+  GIT_DATE_ISO=$(git --git-dir="$NORMAL_PWD""/""$folder"".git/.git" log -n1 --date=iso | grep 'Date:' | tr ' ' '\n' | grep '^[0-9][0-9]' | tr '\n' ' ')
+  GIT_DATE_SECONDS=$(date -d "$GIT_DATE_ISO" +%s)
+
+  LOG_DATE_ISO=$(stat "$CHECK_FILE" | grep Modify | sed 's/\..*$//g' | sed 's/^[^0-9]*//g')
+  LOG_DATE_SECONDS=$(date -d "$LOG_DATE_ISO" +%s)
+
+  if [ ! -f "$CHECK_FILE" ] || [ $GIT_DATE_SECONDS -gt $LOG_DATE_SECONDS ]; then
+    $STAGIT "$NORMAL_PWD""/""$folder"".git"
+  fi
+  
   cd - >/dev/null
   echo "done"
 done
