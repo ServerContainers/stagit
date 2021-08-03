@@ -14,4 +14,4 @@ RUN apk add --no-cache libgit2 \
 
 COPY . /container/
 
-CMD /container/stagit.sh
+CMD /container/build.sh
