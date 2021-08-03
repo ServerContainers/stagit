@@ -18,27 +18,25 @@ for folder in $(find ../repositories/ -name "*.git" -exec sh -c 'echo {} | sed "
   CHECK_FILE="log.html"
 
   if [ -f "$CHECK_FILE" ]; then
-    echo "  already generated stagit found..."
-    echo "  check if refresh is needed..."
-    GIT_DATE_ISO=$(git --git-dir="$NORMAL_PWD""/""$folder"".git" log -n1 --date=iso | grep 'Date:' | tr ' ' '\n' | grep '^[0-9][0-9]' | tr '\n' ' ')
+    GIT_DATE_ISO=$(cd "$NORMAL_PWD""/""$folder"".git" && git log -n1 --date=iso | grep 'Date:' | tr ' ' '\n' | grep '^[0-9][0-9]' | tr '\n' ' ' | sed 's/ *$//g')
     GIT_DATE_SECONDS=$(date -d "$GIT_DATE_ISO" +%s)
 
     LOG_DATE_ISO=$(stat "$CHECK_FILE" | grep Modify | sed 's/\..*$//g' | sed 's/^[^0-9]*//g')
     LOG_DATE_SECONDS=$(date -d "$LOG_DATE_ISO" +%s)
 
     if [ $GIT_DATE_SECONDS -gt $LOG_DATE_SECONDS ]; then
-        echo "  refresh needed"
-        rm -rf *
-        $STAGIT "$NORMAL_PWD""/""$folder"".git"
+      rm -rf * 2>/dev/null >/dev/null
+      $STAGIT "$NORMAL_PWD""/""$folder"".git"
+      echo "re-generated"
     else
-        echo "  skipped stagit (git: $GIT_DATE_ISO, last generation: $LOG_DATE_ISO)"
+      echo "skipped"
     fi
   else
     $STAGIT "$NORMAL_PWD""/""$folder"".git"
+    echo "generated"
   fi
 
   cd - >/dev/null
-  echo "done"
 done
 
 echo
