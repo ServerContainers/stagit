@@ -1,0 +1,10 @@
+version: '3.3'
+
+services:
+
+  stagit:
+    build: .
+    image: stagit
+    restart: never
+    volumes:
+      - ./repositories:/repositories

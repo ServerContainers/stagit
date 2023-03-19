@@ -1,59 +1,25 @@
-#!/bin/sh
+#!/bin/sh -x
 
-[ ! -d /html ] && >&2 echo "error - no /html directory found... exiting" && exit 1
-[ ! -d /repositories ] && >&2 echo "error - no /repositories directory found... exiting" && exit 1
+[ -z "$DOCKER_REGISTRY" ] && echo "error please specify docker-registry DOCKER_REGISTRY" && exit 1
+IMG="$DOCKER_REGISTRY/minimail"
 
-cd html/
+sed -i.bak 's/image: /image: '"$DOCKER_REGISTRY"'\//g' docker-compose.yml; rm docker-compose.yml.bak
 
-STAGIT="stagit"
-STAGIT_INDEX="stagit-index"
-NORMAL_PWD="$PWD""/../repositories/"
+PLATFORM="linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6"
 
-# stagit
-for folder in $(find ../repositories/ -name "*.git" -exec sh -c 'echo {} | sed "s,.*repositories/,,g" | sed "s,\.git$,,g" | sed "s,\.git/$,,g"' \; | sort | uniq) ; do
-  echo -n "building $folder ... "
-  mkdir -p "$folder"
-  cd "$folder"
+if [ -z ${POSTFIX_VERSION+x} ] || [ -z ${DOVECOT_VERSION+x} ] || [ -z ${ALPINE_VERSION+x} ]; then
+  docker-compose build -q --pull --no-cache
+  export STAGIT_VERSION=$(docker run --rm -ti "$IMG" cat /version | sed 's/Date://g' | sed 's/[^A-Za-z0-9]//g')
+  export ALPINE_VERSION=$(docker run --rm -ti "$IMG" cat /etc/alpine-release | tail -n1 | tr -d '\r')
+fi
 
-  CHECK_FILE="log.html"
+if echo "$@" | grep -v "force" 2>/dev/null >/dev/null; then
+  echo "check if image was already build and pushed - skip check on release version"
+  echo "$@" | grep -v "release" && docker pull "$IMG:a$ALPINE_VERSION-s$STAGIT_VERSION" 2>/dev/null >/dev/null && echo "image already build" && exit 1
+fi
 
-  if [ -f "$CHECK_FILE" ]; then
-    GIT_DATE_ISO=$(cd "$NORMAL_PWD""/""$folder"".git" && git log -n1 --date=iso | grep 'Date:' | tr ' ' '\n' | grep '^[0-9][0-9]' | tr '\n' ' ' | sed 's/ *$//g')
-    GIT_DATE_SECONDS=$(date -d "$GIT_DATE_ISO" +%s)
+docker buildx build -q --pull --no-cache --platform "$PLATFORM" -t "$IMG:a$ALPINE_VERSION-s$STAGIT_VERSION" --push .
 
-    LOG_DATE_ISO=$(stat "$CHECK_FILE" | grep Modify | sed 's/\..*$//g' | sed 's/^[^0-9]*//g')
-    LOG_DATE_SECONDS=$(date -d "$LOG_DATE_ISO" +%s)
+echo "$@" | grep "release" 2>/dev/null >/dev/null && echo ">> releasing new latest" && docker buildx build -q --pull --platform "$PLATFORM" -t "$IMG:latest" --push .
 
-    if [ $GIT_DATE_SECONDS -gt $LOG_DATE_SECONDS ]; then
-      rm -rf * 2>/dev/null >/dev/null
-      $STAGIT "$NORMAL_PWD""/""$folder"".git"
-      echo "re-generated"
-    else
-      echo "skipped"
-    fi
-  else
-    $STAGIT "$NORMAL_PWD""/""$folder"".git"
-    echo "generated"
-  fi
-
-  cd - >/dev/null
-done
-
-echo
-echo
-
-# stagit-index
-for folder in $(find ../repositories/ -name "*.git" -exec sh -c 'echo {} | sed "s,.*repositories/,,g" | grep -v '/.git' | sed "s,[^/]*\.git$,,g"' \; | sort | uniq) ; do
-  echo -n "building index for $folder ... "
-  cd "$folder"
-  $STAGIT_INDEX "$NORMAL_PWD""$folder"*.git > index.html
-  cd - >/dev/null
-  echo "done"
-done
-
-echo
-echo
-
-echo -n "set permissions ..."
-chmod a+rwx -R *
-echo "done"
+git checkout docker-compose.yml
