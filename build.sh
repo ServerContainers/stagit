@@ -1,7 +1,7 @@
 #!/bin/sh -x
 
 [ -z "$DOCKER_REGISTRY" ] && echo "error please specify docker-registry DOCKER_REGISTRY" && exit 1
-IMG="$DOCKER_REGISTRY/minimail"
+IMG="$DOCKER_REGISTRY/stagit"
 
 sed -i.bak 's/image: /image: '"$DOCKER_REGISTRY"'\//g' docker-compose.yml; rm docker-compose.yml.bak
 

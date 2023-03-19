@@ -4,7 +4,7 @@ services:
 
   stagit:
     build: .
-    image: stagit
+    image: registry.nas.bknd.ovh/stagit
     restart: never
     volumes:
       - ./repositories:/repositories
