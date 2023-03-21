@@ -1,7 +1,15 @@
-Stagit recursive Git-Site Generator
-=====================================
+Stagit recursive Git-Site Generator (ghcr.io/servercontainers/stagit) [x86 + arm]
+=================================================================================
 
 Dockerized Version of `stagit` (https://git.codemadness.org/stagit/) - with script to recursively generate an overview over several git projects.
+
+It's based on the [_/alpine](https://registry.hub.docker.com/_/alpine/) Image
+
+View in GitHub Registry [ghcr.io/servercontainers/stagit](https://ghcr.io/servercontainers/stagit)
+
+View in GitHub [ServerContainers/stagit](https://github.com/ServerContainers/stagit)
+
+_currently tested on: x86_64, arm64, arm_
 
 ## IMPORTANT!
 
@@ -13,10 +21,9 @@ I'm not going to do that. It's more of a professionally done hobby then a
 professional job I'm earning money with.
 
 In order to avoid bad actors taking over my org. names and publishing potenial
-backdoored containers, I'd recommend to switch over clone my github repos and
-build the containers yourself.
+backdoored containers, I'd recommend to switch over to my new github registry: `ghcr.io/servercontainers`.
 
-## Build & Variants
+## Build & Versions
 
 You can specify `DOCKER_REGISTRY` environment variable (for example `my.registry.tld`)
 and use the build script to build the main container and it's variants for _x86_64, arm64 and arm_
@@ -29,6 +36,9 @@ To build a `latest` tag run `./build.sh release`
 
 ## Changelogs
 
+* 2023-03-20
+    * github action to build container
+    * implemented ghcr.io as new registry
 * 2023-03-19
     * switched from docker hub to a build-yourself container
     * added build script and renamend generator script `generator.sh`
@@ -44,7 +54,7 @@ To build a `latest` tag run `./build.sh release`
 Build the container using `docker-compose build` and run the following command:
 
 ```
-docker run --rm -v "$PWD/html:/html" -v "$PWD/repositories:/repositories" stagit
+docker run --rm -v "$PWD/html:/html" -v "$PWD/repositories:/repositories" ghcr.io/servercontainers/stagit
 ```
 
 ## Serve generated files
